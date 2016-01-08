@@ -341,7 +341,7 @@ exports.init = function(grunt) {
     };
 
     var createSprite = function (width, height) {
-        var image = gd.createTrueColor(width, height);
+        var image = gd.createTrueColorSync(width, height);
 
         // set the transparency PNG
         image.saveAlpha(1);
