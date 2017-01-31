@@ -1,7 +1,7 @@
 'use strict';
 
 var grunt   = require('grunt');
-var gd      = require('node-gd');
+var Jimp    = require('jimp');
 var expect  = require('expect.js');
 var config  = require('../config');
 var spriter = require('../tasks/lib/spriter').init(grunt);
@@ -50,9 +50,10 @@ describe('Spriter', function() {
 
     it('should compute sprite size for y sprite', function(done) {
         _sprite('repeat', function () {
-            gd.openPng('tmp/sprites/repeat-sprited_y.png', function(err, imageData) {
-                expect(imageData.width).to.eql(33);
-                expect(imageData.height).to.eql(200);
+            Jimp.read('tmp/sprites/repeat-sprited_y.png', function(err, imageData) {
+                console.log('imageData: ', err, imageData);
+                expect(imageData.bitmap.width).to.eql(33);
+                expect(imageData.bitmap.height).to.eql(200);
                 done();
             });
         });
@@ -60,9 +61,9 @@ describe('Spriter', function() {
 
     it('should compute sprite size for x sprite', function(done) {
         _sprite('repeat', function () {
-            gd.openPng('tmp/sprites/repeat-sprited_x.png', function(err, imageData) {
-                expect(imageData.width).to.eql(10);
-                expect(imageData.height).to.eql(30);
+            Jimp.read('tmp/sprites/repeat-sprited_x.png', function(err, imageData) {
+                expect(imageData.bitmap.width).to.eql(10);
+                expect(imageData.bitmap.height).to.eql(30);
                 done();
             });
         });

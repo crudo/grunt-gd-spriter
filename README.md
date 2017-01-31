@@ -186,4 +186,4 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Copyright
 
-Copyright (c) 2013, GoodData Corporation (BSD License)
+Copyright (c) 2017, GoodData Corporation (BSD License)

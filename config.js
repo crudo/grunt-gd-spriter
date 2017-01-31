@@ -2,7 +2,7 @@
 * grunt-gd-spriter
 * https://github.com/gooddata/grunt-gd-spriter
 *
-* Copyright (c) 2013 GoodData Corporation
+* Copyright (c) 2017 GoodData Corporation
 * Licensed under the BSD license.
 */
 

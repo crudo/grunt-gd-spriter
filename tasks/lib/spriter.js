@@ -2,15 +2,16 @@
  * grunt-gd-spriter
  * https://github.com/gooddata/grunt-gd-spriter
  *
- * Copyright (c) 2013 GoodData Corporation
+ * Copyright (c) 2017 GoodData Corporation
  * Licensed under the BSD license.
  */
 
 'use strict';
 
-var fs     = require('fs');
-var path   = require('path');
-var gd     = require('node-gd');
+var fs = require('fs');
+var path = require('path');
+var Jimp = require('jimp');
+var _ = require('lodash');
 
 exports.init = function(grunt) {
 
@@ -44,7 +45,7 @@ exports.init = function(grunt) {
         var stylesheetPath = path.resolve(path.dirname(file.dest));
         var spriteDest = path.resolve(opts.spriteDest || file.spriteDest || './');
 
-        var options = grunt.util._.merge({
+        var options = _.merge({
             spriteDest: spriteDest,
             spritePath: path.relative(stylesheetPath, spriteDest) + '/',
             spriteBaseName: path.basename(file.dest).replace(path.extname(file.dest), '')
@@ -214,9 +215,7 @@ exports.init = function(grunt) {
                 var fit = i.fit;
                 i.sprite = opts.spritePath + spriteName;
 
-                png = gd.createFromPng(target.stylesDir + '/' + i.data.image);
-
-                png.copy(sprite, fit.x, fit.y, 0, 0, png.width, png.height);
+                sprite.blit(i.data.imageData, fit.x, fit.y, 0, 0, i.data.width, i.data.height);
 
                 target.images[i.data.image] = i;
 
@@ -245,14 +244,14 @@ exports.init = function(grunt) {
 
         // create cropped sprite
         var finalSprite = createSprite(maxX,maxY);
-        sprite.copy(finalSprite, 0, 0, 0, 0, maxX, maxY);
-        finalSprite.savePng(opts.spriteDest + '/' + spriteName);
+        sprite.blit(finalSprite, 0, 0, 0, 0, maxX, maxY);
+        finalSprite.write(opts.spriteDest + '/' + spriteName);
 
         cb();
     };
 
     var loadImage = function (item, cb) {
-        gd.openPng(target.stylesDir + '/' + item.image, function(err, imageData) {
+        Jimp.read(target.stylesDir + '/' + item.image, function(err, imageData) {
             if (err || !imageData){
                 item.skip = true;
                 cb();
@@ -260,15 +259,16 @@ exports.init = function(grunt) {
             }
 
             // add size info
-            item.width = imageData.width;
-            item.height = imageData.height;
+            item.width = imageData.bitmap.width;
+            item.height = imageData.bitmap.height;
+            item.imageData = imageData;
 
             cb();
         });
     };
 
     var markImage = function (item, cb) {
-        var isIgnored = grunt.util._.contains(target.options.noSprite || target.options.skip, item.image);
+        var isIgnored = _.includes(target.options.noSprite || target.options.skip, item.image);
         if ( isIgnored ) {
             item.skip = true;
         }
@@ -341,16 +341,17 @@ exports.init = function(grunt) {
     };
 
     var createSprite = function (width, height) {
-        var image = gd.createTrueColorSync(width, height);
+        var image = new Jimp(width, height);
+        image.opaque();
 
         // set the transparency PNG
-        image.saveAlpha(1);
-        image.alphaBlending(0);
-        image.colorAllocateAlpha(220, 220, 220, 127);
-
-        // fill with transparent color
-        var tlo = gd.trueColorAlpha(220, 220, 220, 127);
-        image.fill(0, 0, tlo);
+        // image.saveAlpha(1);
+        // image.alphaBlending(0);
+        // image.colorAllocateAlpha(220, 220, 220, 127);
+        //
+        // // fill with transparent color
+        // var tlo = gd.trueColorAlpha(220, 220, 220, 127);
+        // image.fill(0, 0, tlo);
 
         return image;
     };

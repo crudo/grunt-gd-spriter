@@ -8,6 +8,8 @@
 
 'use strict';
 
+var _ = require('lodash');
+
 module.exports = function(grunt) {
     var taskName = 'spriter';
 
@@ -20,7 +22,7 @@ module.exports = function(grunt) {
 
         var taskOpts   = grunt.config([taskName, 'options']) || defaultOptions;
         var targetOpts = grunt.config([taskName, this.target, 'options']) || defaultOptions;
-        var options    = grunt.util._.merge(defaultOptions, taskOpts, targetOpts);
+        var options    = _.merge(defaultOptions, taskOpts, targetOpts);
 
         this.files.forEach(function(f) {
             if (!f.src.length) {
