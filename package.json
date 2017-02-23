@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/gooddata/grunt-gd-spriter/issues"
   },
-  "license": "Copyright (c) 2013, GoodData Corporation (BSD License)",
+  "license": "SEE LICENSE IN LICENSE.txt",
   "main": "Gruntfile.js",
   "engines": {
     "node": ">= 0.8.0"
@@ -31,11 +31,11 @@
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "1.0.0",
     "grunt-contrib-copy": "1.0.0",
-    "grunt-contrib-jshint": "1.0.0",
+    "grunt-contrib-jshint": "1.1.0",
     "grunt-contrib-watch": "1.0.0",
     "grunt-mocha-istanbul": "5.0.2",
     "istanbul": "0.4.5",
-    "mocha": "3.1.2"
+    "mocha": "3.2.0"
   },
   "peerDependencies": {
     "grunt": "~0.4.1"
