@@ -10,7 +10,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var Jimp = require('jimp');
+var lwip = require('lwip');
 var _ = require('lodash');
 
 exports.init = function(grunt) {
@@ -67,14 +67,16 @@ exports.init = function(grunt) {
 
         grunt.util.async.forEach(matches, loadImage, function (err) {
             grunt.util.async.forEach(matches, markImage, function (err) {
-                grunt.util.async.forEach(Object.keys(target.bgGroups), makeSprite, function (err) {
-                    if (err) {
-                        grunt.log.warn(err.msg);
-                        done(false);
-                        return;
-                    }
-                    saveSprite();
-                    done();
+                grunt.util.async.forEach(Object.keys(target.bgGroups), createSpriteCanvas, function (err) {
+                    grunt.util.async.forEach(Object.keys(target.bgGroups), makeSprite, function (err) {
+                        if (err) {
+                            grunt.log.warn(err.msg);
+                            done(false);
+                            return;
+                        }
+                        saveSprite();
+                        done();
+                    });
                 });
             });
         });
@@ -128,9 +130,18 @@ exports.init = function(grunt) {
         grunt.file.write(target.files.dest, newContent);
     };
 
-    var makeSprite = function(groupName, cb) {
+    var createSpriteCanvas = function(groupName, cb) {
+        var packer = target.options.packers[groupName];
 
+        lwip.create(packer.spriteWidth, packer.spriteHeight, function(err, image){
+            target.sprite = image;
+            cb();
+        });
+    };
+
+    var makeSprite = function(groupName, cb) {
         var images = target.bgGroups[groupName],
+            sprite = target.sprite,
             opts = target.options,
             version = opts.version ? '_' + opts.version : '',
             items = [];
@@ -206,16 +217,15 @@ exports.init = function(grunt) {
             '<td>' + img.data.width + '</td><td>' + img.data.height + '</td></tr>';
         };
 
-        // create sprite
-        var sprite = createSprite(packer.spriteWidth, packer.spriteHeight);
-
         var png;
         items.forEach(function(i, c) {
             if( i.fit ){
                 var fit = i.fit;
                 i.sprite = opts.spritePath + spriteName;
 
-                sprite.blit(i.data.imageData, fit.x, fit.y, 0, 0, i.data.width, i.data.height);
+                sprite.paste(fit.x, fit.y, i.data.imageData, function (err, image) {
+                    console.log('PASTE 227: ', err, image);
+                });
 
                 target.images[i.data.image] = i;
 
@@ -251,16 +261,15 @@ exports.init = function(grunt) {
     };
 
     var loadImage = function (item, cb) {
-        Jimp.read(target.stylesDir + '/' + item.image, function(err, imageData) {
-            if (err || !imageData){
+        lwip.open(target.stylesDir + '/' + item.image, 'png', function(err, imageData) {
+            if (err || !imageData) {
                 item.skip = true;
                 cb();
                 return;
             }
-
             // add size info
-            item.width = imageData.bitmap.width;
-            item.height = imageData.bitmap.height;
+            item.width = imageData.width();
+            item.height = imageData.height();
             item.imageData = imageData;
 
             cb();
@@ -340,9 +349,10 @@ exports.init = function(grunt) {
         cb();
     };
 
-    var createSprite = function (width, height) {
-        var image = new Jimp(width, height);
-        image.opaque();
+    var createSprite = function (width, height, cb) {
+        var image = lwip.create(width, height, function(err, image){
+            console.log('err, image:::: ', err, image);
+        });
 
         // set the transparency PNG
         // image.saveAlpha(1);
@@ -353,7 +363,6 @@ exports.init = function(grunt) {
         // var tlo = gd.trueColorAlpha(220, 220, 220, 127);
         // image.fill(0, 0, tlo);
 
-        return image;
     };
 
     var exports = {

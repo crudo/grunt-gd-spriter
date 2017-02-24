@@ -1,7 +1,7 @@
 'use strict';
 
 var grunt   = require('grunt');
-var lwip    = require('lwip');
+var Jimp    = require('jimp');
 var expect  = require('expect.js');
 var config  = require('../config');
 var spriter = require('../tasks/lib/spriter').init(grunt);

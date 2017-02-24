@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "binpacking": "0.0.1",
-    "jimp": "0.2.27",
-    "lodash": "4.17.4"
+    "lodash": "4.17.4",
+    "lwip": "0.0.9"
   },
   "devDependencies": {
     "expect.js": "0.3.1",
