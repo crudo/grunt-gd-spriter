@@ -10,7 +10,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var Jimp = require('jimp');
+var sharp = require('sharp');
 var _ = require('lodash');
 
 exports.init = function(grunt) {
@@ -251,17 +251,20 @@ exports.init = function(grunt) {
     };
 
     var loadImage = function (item, cb) {
-        Jimp.read(target.stylesDir + '/' + item.image, function(err, imageData) {
-            if (err || !imageData){
+        sharp(target.stylesDir + '/' + item.image).on('info', function(info) {
+
+            console.log('@@@=== 1: ', item.image);
+            console.log('@@@=== 2: ', info);
+
+            if (!info){
                 item.skip = true;
                 cb();
                 return;
             }
 
             // add size info
-            item.width = imageData.bitmap.width;
-            item.height = imageData.bitmap.height;
-            item.imageData = imageData;
+            item.width = info.width;
+            item.height = info.height;
 
             cb();
         });
